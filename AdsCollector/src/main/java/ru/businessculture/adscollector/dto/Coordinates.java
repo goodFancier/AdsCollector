@@ -5,13 +5,21 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Id;
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable
 public class Coordinates {
-    protected Double lat;
-    protected Double lng;
+
+    /**
+     * Широта
+     */
+    public Double lat;
+
+    /**
+     * Долгота
+     */
+    public Double lng;
+
 }
