@@ -9,29 +9,43 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.businessculture.adscollector.dto.Ads;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
 public class FindTrulyCoordinates implements IRule {
+    private String x;
+    private String y;
 
-    @Override
-    public void applyRule(List<Ads> adsList) throws Exception {
-        String response = sendGet("http://dev.virtualearth.net/REST/v1/Locations/RU/Moscow?key=AtxwwHUGYk49B1yXRHQlgA8vHPvJzLv-EGC21D68thQIa-vfGCwxBlrsFxjXemxN", getConfigTimeouts());
+    public void parseJson(String response) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> map = mapper.readValue(response, Map.class);
-        List<Object> objectList = ((ArrayList<Object>) (map.get("resourceSets")));
         LinkedHashMap<Object, Object> resourceSetsMap = (LinkedHashMap<Object, Object>) ((ArrayList<Object>) (map.get("resourceSets"))).get(0);
         LinkedHashMap<Object, Object> resourcesMap = (LinkedHashMap<Object, Object>) ((ArrayList<Object>) (resourceSetsMap.get("resources"))).get(0);
         LinkedHashMap<Object, Object> pointMap = (LinkedHashMap<Object, Object>) resourcesMap.get("point");
-        String x = ((ArrayList<Object>) (pointMap.get("coordinates"))).get(0).toString();
-        String y = ((ArrayList<Object>) (pointMap.get("coordinates"))).get(1).toString();
-        System.out.println(x + ";" + y);
+        x = ((ArrayList<Object>) (pointMap.get("coordinates"))).get(0).toString();
+        y = ((ArrayList<Object>) (pointMap.get("coordinates"))).get(1).toString();
+    }
+
+    @Override
+    public void applyRule(List<Ads> adsList) throws Exception {
+        for (Ads ads : adsList) {
+            String uniAdress = URLEncoder.encode(ads.getAddress(), StandardCharsets.UTF_8);
+            String url = String.format("http://dev.virtualearth.net/REST/v1/Locations/RU/%s?key=AtxwwHUGYk49B1yXRHQlgA8vHPvJzLv-EGC21D68thQIa-vfGCwxBlrsFxjXemxN",
+                    uniAdress);
+            String response = sendGet(url, getConfigTimeouts());
+            parseJson(response);
+            ads.setTrulyLatitude(Double.parseDouble(x));
+            ads.setTrulyLongitude(Double.parseDouble(y));
+        }
     }
 
     public RequestConfig getConfigTimeouts() {
@@ -65,5 +79,6 @@ public class FindTrulyCoordinates implements IRule {
                 rd.close();
         }*/
         return res.toString();
+
     }
 }

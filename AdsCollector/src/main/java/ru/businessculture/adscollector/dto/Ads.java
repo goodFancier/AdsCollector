@@ -170,6 +170,15 @@ public class Ads {
     // Регион мобильного телефона.
     protected String phone_region;
 
-    // Координаты
-    protected String coordinates;
+    // Географическая широта (String x).
+    @Setter
+    @Getter
+    @Column(name = "lat", insertable = false, updatable = false)
+    private Double trulyLatitude;
+
+    // Географическая долгота (String y).
+    @Setter
+    @Getter
+    @Column(name = "lng", insertable = false, updatable = false)
+    private Double trulyLongitude;
 }
