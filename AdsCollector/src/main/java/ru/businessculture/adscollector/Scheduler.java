@@ -67,11 +67,12 @@ public class Scheduler {
                         AdsTimePeriodPerRequestSec = Math.round(AdsTimePeriodPerRequestSec * 1.6f);
                 }
             }
-            //if (needSave) {
-            ruleManager.applyRules(ads.getData());
-            adsRepository.saveAll(ads.getData());
-            nowDate.add(Calendar.MINUTE, 31);
-            settings.setLastDataLoadingDate(nowDate.getTime());
-             }
+            if (needSave) {
+                ruleManager.applyRules(ads.getData());
+                adsRepository.saveAll(ads.getData());
+                nowDate.add(Calendar.MINUTE, 31);
+                settings.setLastDataLoadingDate(nowDate.getTime());
+            }
         }
     }
+}
