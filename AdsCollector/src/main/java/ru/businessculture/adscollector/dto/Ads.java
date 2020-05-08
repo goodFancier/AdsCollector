@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -168,4 +169,16 @@ public class Ads {
 
     // Регион мобильного телефона.
     protected String phone_region;
+
+    // Географическая широта (String x).
+    @Setter
+    @Getter
+    @Column(name = "lat", insertable = false, updatable = false)
+    private Double trulyLatitude;
+
+    // Географическая долгота (String y).
+    @Setter
+    @Getter
+    @Column(name = "lng", insertable = false, updatable = false)
+    private Double trulyLongitude;
 }
